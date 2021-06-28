@@ -159,6 +159,44 @@ public class CustomerController {
         return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, null, HttpStatus.OK);
     }
 
+    /**
+     * Updates the Customer password endpoint
+     *
+     * @param authorization
+     * @param updatePasswordRequest
+     * @return ResponseEntity UpdatePasswordResponse
+     * @throws UpdateCustomerException and AuthorizationFailedException
+     */
+    @RequestMapping(method = RequestMethod.PUT,
+            path = "/customer/password",
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdatePasswordResponse> updateCustomerPassword(
+            @RequestHeader("authorization") final String authorization,
+            @RequestBody UpdatePasswordRequest updatePasswordRequest)
+            throws UpdateCustomerException, AuthorizationFailedException {
+        String oldPassword = updatePasswordRequest.getOldPassword();
+        String newPassword = updatePasswordRequest.getNewPassword();
+
+        if (oldPassword == null || oldPassword == "") {
+            throw new UpdateCustomerException("UCR-003", "No field should be empty");
+        }
+        if (newPassword == null || newPassword == "") {
+            throw new UpdateCustomerException("UCR-003", "No field should be empty");
+        }
+
+        String accessToken = authorization.split("Bearer ")[1];
+        CustomerEntity customerEntityToBeUpdated = customerService.getCustomer(accessToken);
+        CustomerEntity updatedCustomerEntity = customerService.updateCustomerPassword(
+                oldPassword, newPassword,customerEntityToBeUpdated
+        );
+
+        UpdatePasswordResponse updatePasswordResponse = new UpdatePasswordResponse()
+                .id(updatedCustomerEntity.getUuid()).status("CUSTOMER PASSWORD UPDATED SUCCESSFULLY");
+        return new ResponseEntity<UpdatePasswordResponse>(updatePasswordResponse, HttpStatus.OK);
+
+    }
+
     private boolean validateSignUpRequest(SignupCustomerRequest signupCustomerRequest) throws SignUpRestrictedException {
         if (signupCustomerRequest == null || signupCustomerRequest.getFirstName() == null
                 || signupCustomerRequest.getContactNumber() == null
