@@ -1,15 +1,13 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.api.model.LoginResponse;
-import com.upgrad.FoodOrderingApp.api.model.LogoutResponse;
-import com.upgrad.FoodOrderingApp.api.model.SignupCustomerRequest;
-import com.upgrad.FoodOrderingApp.api.model.SignupCustomerResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -128,6 +126,39 @@ public class CustomerController {
         return new ResponseEntity<LogoutResponse>(logoutResponse, null, HttpStatus.OK);
     }
 
+    /**
+     * Customer update endpoint
+     *
+     * @param authorization token
+     * @return ResponseEntity UpdateCustomerResponse
+     * @throws UpdateCustomerException or AuthorizationFailedException
+     */
+    @RequestMapping(method = RequestMethod.PUT,
+            path = "/customer",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdateCustomerResponse> update(
+            @RequestHeader("authorization") final String authorization,
+            @RequestBody final UpdateCustomerRequest updateCustomerRequest)
+            throws AuthorizationFailedException, UpdateCustomerException {
+        validateUpdateCustomerRequest(updateCustomerRequest.getFirstName());
+
+        String accessToken = authorization.split("Bearer ")[1];
+
+        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+        customerEntity.setFirstName(updateCustomerRequest.getFirstName());
+        customerEntity.setLastName(updateCustomerRequest.getLastName());
+        CustomerEntity updatedCustomerEntity = customerService.updateCustomer(customerEntity);
+
+        UpdateCustomerResponse updateCustomerResponse = new UpdateCustomerResponse();
+        updateCustomerResponse.setFirstName(updatedCustomerEntity.getFirstName());
+        updateCustomerResponse.setLastName(updatedCustomerEntity.getLastName());
+        updateCustomerResponse.setId(updatedCustomerEntity.getUuid());
+        updateCustomerResponse.status("CUSTOMER DETAILS UPDATED SUCCESSFULLY");
+
+        return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, null, HttpStatus.OK);
+    }
+
     private boolean validateSignUpRequest(SignupCustomerRequest signupCustomerRequest) throws SignUpRestrictedException {
         if (signupCustomerRequest == null || signupCustomerRequest.getFirstName() == null
                 || signupCustomerRequest.getContactNumber() == null
@@ -140,6 +171,13 @@ public class CustomerController {
         ) {
             throw new SignUpRestrictedException("SGR-005",
                     "Except last name all fields should be filled");
+        }
+        return true;
+    }
+
+    private boolean validateUpdateCustomerRequest(String firstName) throws UpdateCustomerException {
+        if (firstName == null || firstName == "") {
+            throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
         }
         return true;
     }
