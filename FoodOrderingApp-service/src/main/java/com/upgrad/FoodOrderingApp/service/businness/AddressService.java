@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,6 +79,19 @@ public class AddressService {
         CustomerAddressEntity createdCustomerAddressEntity = customerAddressDao.saveCustomerAddress(customerAddressEntity);
         return createdCustomerAddressEntity;
 
+    }
+
+    public List<AddressEntity> getAllAddress(final CustomerEntity customerEntity) {
+        List<AddressEntity> addressEntities = new LinkedList<>();
+
+        List<CustomerAddressEntity> customerAddressEntities  = customerAddressDao.getAllCustomerAddressByCustomer(customerEntity);
+        if(customerAddressEntities != null) {
+            customerAddressEntities.forEach(customerAddressEntity -> {
+                addressEntities.add(customerAddressEntity.getAddress());
+            });
+        }
+
+        return addressEntities;
     }
 
     public boolean isPincodeValid(String pincode){
