@@ -1,5 +1,6 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import org.springframework.stereotype.Repository;
@@ -27,6 +28,15 @@ public class CustomerAddressDao {
             Integer active = 1; // if address is active value is 1
             List <CustomerAddressEntity> customerAddressEntities = entityManager.createNamedQuery("getAllCustomerAddressByCustomer",CustomerAddressEntity.class).setParameter("customer_entity",customerEntity).setParameter("active",active).getResultList();
             return customerAddressEntities;
+        }catch (NoResultException nre){
+            return null;
+        }
+    }
+
+    public CustomerAddressEntity getCustomerAddressByAddress(AddressEntity addressEntity){
+        try {
+            CustomerAddressEntity customerAddressEntity = entityManager.createNamedQuery("getCustomerAddressByAddress",CustomerAddressEntity.class).setParameter("address_entity",addressEntity).getSingleResult();
+            return customerAddressEntity;
         }catch (NoResultException nre){
             return null;
         }
