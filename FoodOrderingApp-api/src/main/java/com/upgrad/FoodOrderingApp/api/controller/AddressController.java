@@ -93,4 +93,25 @@ public class AddressController {
         AddressListResponse addressListResponse = new AddressListResponse().addresses(addressLists);
         return new ResponseEntity<AddressListResponse>(addressListResponse,HttpStatus.OK);
     }
+
+    @RequestMapping(method = RequestMethod.DELETE,
+            path = "/address/{address_id}",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<DeleteAddressResponse> deleteSavedAddress(
+            @RequestHeader("authorization")final String authorization,
+            @PathVariable("address_id")final String addressId)
+            throws AuthorizationFailedException, AddressNotFoundException {
+        String accessToken = authorization.split("Bearer ")[1];
+
+        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+
+        final AddressEntity addressToBeDeleted = addressService.getAddressByUUID(addressId, customerEntity);
+        final AddressEntity deletedAddress = addressService.deleteAddress(addressToBeDeleted);
+
+        DeleteAddressResponse deleteAddressResponse = new DeleteAddressResponse()
+                .id(UUID.fromString(deletedAddress.getUuid()))
+                .status("ADDRESS DELETED SUCCESSFULLY");
+
+        return new ResponseEntity<DeleteAddressResponse>(deleteAddressResponse,HttpStatus.OK);
+    }
 }
