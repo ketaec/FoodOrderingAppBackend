@@ -122,6 +122,11 @@ public class AddressService {
         return addressDao.deleteAddress(addressEntity);
     }
 
+    public List<StateEntity> getAllStates(){
+        List<StateEntity> stateEntities = stateDao.getAllStates();
+        return stateEntities;
+    }
+
     public boolean isPincodeValid(String pincode){
         Pattern p = Pattern.compile("\\d{6}\\b");
         Matcher m = p.matcher(pincode);
