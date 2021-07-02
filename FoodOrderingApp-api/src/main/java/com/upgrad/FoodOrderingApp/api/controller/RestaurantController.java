@@ -9,14 +9,12 @@ import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +67,6 @@ public class RestaurantController {
                     .customerRating(BigDecimal.valueOf(restaurantEntity.getCustomerRating()))
                     .numberCustomersRated(restaurantEntity.getNumberCustomersRated())
                     .photoURL(restaurantEntity.getPhotoUrl()));
-
         }
         return listRestaurantList;
     }
@@ -83,5 +80,21 @@ public class RestaurantController {
                 .state(new RestaurantDetailsResponseAddressState()
                         .id(UUID.fromString(restaurantEntity.getAddress().getState().getStateUuid()))
                         .stateName(restaurantEntity.getAddress().getState().getStateName()));
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+            path = "/restaurant/name/{restaurant_name}",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantListResponse> getRestaurantListByName(
+            @PathVariable("restaurant_name") final String restaurantName)
+            throws RestaurantNotFoundException {
+
+        List<RestaurantEntity> listRestaurantEntity = restaurantService.restaurantsByName(restaurantName);
+
+        List<RestaurantList> listRestaurantList = getListRestaurantListFromListRestaurantEntity(listRestaurantEntity);
+
+        RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(listRestaurantList);
+
+        return new ResponseEntity<RestaurantListResponse>(restaurantListResponse, HttpStatus.OK);
     }
 }
