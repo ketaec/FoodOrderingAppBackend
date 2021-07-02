@@ -9,6 +9,7 @@ import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -90,11 +91,23 @@ public class RestaurantController {
             throws RestaurantNotFoundException {
 
         List<RestaurantEntity> listRestaurantEntity = restaurantService.restaurantsByName(restaurantName);
-
         List<RestaurantList> listRestaurantList = getListRestaurantListFromListRestaurantEntity(listRestaurantEntity);
 
         RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(listRestaurantList);
-
         return new ResponseEntity<RestaurantListResponse>(restaurantListResponse, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+            path = "/restaurant/category/{category_id}",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantListResponse> getRestaurantListByCategory(
+            @PathVariable("category_id") final String categoryId)
+            throws CategoryNotFoundException {
+
+        List<RestaurantEntity> listRestaurantEntity = restaurantService.restaurantByCategory(categoryId);
+        List<RestaurantList> listRestaurantList = getListRestaurantListFromListRestaurantEntity(listRestaurantEntity);
+
+        RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(listRestaurantList);
+        return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
     }
 }
