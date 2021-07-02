@@ -1,13 +1,12 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponseAddress;
-import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponseAddressState;
-import com.upgrad.FoodOrderingApp.api.model.RestaurantList;
-import com.upgrad.FoodOrderingApp.api.model.RestaurantListResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CategoryService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
+import com.upgrad.FoodOrderingApp.service.businness.ItemService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
+import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
@@ -35,6 +34,9 @@ public class RestaurantController {
 
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    private ItemService itemService;
 
     @RequestMapping(
             method = RequestMethod.GET,
@@ -109,5 +111,52 @@ public class RestaurantController {
 
         RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(listRestaurantList);
         return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+            path = "/api/restaurant/{restaurant_id}",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantDetailsResponse> getRestaurantDetails(
+            @PathVariable("restaurant_id") final String restaurantId)
+            throws RestaurantNotFoundException {
+        RestaurantEntity restaurantEntity = restaurantService.restaurantByUUID(restaurantId);
+        List<CategoryList> listCategoryList = getCategoryListByRestaurantId(restaurantId);
+
+        RestaurantDetailsResponse restaurantDetailsResponse = getRestaurantDetailsResponse(restaurantEntity, listCategoryList);
+        return new ResponseEntity<RestaurantDetailsResponse>(restaurantDetailsResponse, HttpStatus.OK);
+    }
+
+    private List<CategoryList> getCategoryListByRestaurantId(String restaurantId) {
+        List<CategoryEntity> listCategory = categoryService.getCategoriesByRestaurant(restaurantId);
+        List<CategoryList> listCategoryList = new ArrayList<>();
+        for (CategoryEntity c : listCategory) {
+            List<ItemEntity> listItemEntity = itemService.getItemsByCategoryAndRestaurant(restaurantId, c.getUuid());
+            List<ItemList> listItemList = new ArrayList<>();
+            for (ItemEntity i : listItemEntity) {
+                listItemList.add(new ItemList()
+                        .id(UUID.fromString(i.getUuid()))
+                        .itemName(i.getItemName())
+                        .itemType(ItemList.ItemTypeEnum.fromValue(i.getType().toString()))
+                        .price(i.getPrice()));
+            }
+            listCategoryList.add(new CategoryList()
+                    .id(UUID.fromString(c.getUuid()))
+                    .categoryName(c.getCategoryName())
+                    .itemList(listItemList));
+        }
+        return listCategoryList;
+    }
+
+    private RestaurantDetailsResponse getRestaurantDetailsResponse(RestaurantEntity restaurantEntity, List<CategoryList> listCategoryList) {
+        return new RestaurantDetailsResponse().id(UUID.fromString(restaurantEntity.getUuid()))
+                .restaurantName(restaurantEntity.getRestaurantName())
+                .averagePrice(restaurantEntity.getAvgPrice())
+                .categories(listCategoryList)
+                .address(getRestaurantDetailsResponseAddress(restaurantEntity))
+                .customerRating(BigDecimal.valueOf(restaurantEntity.getCustomerRating()))
+                .numberCustomersRated(restaurantEntity.getNumberCustomersRated())
+                .photoURL(restaurantEntity.getPhotoUrl())
+                .address(getRestaurantDetailsResponseAddress(restaurantEntity))
+                .averagePrice(restaurantEntity.getAvgPrice());
     }
 }
