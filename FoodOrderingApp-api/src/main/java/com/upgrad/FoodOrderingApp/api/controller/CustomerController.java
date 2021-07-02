@@ -84,6 +84,9 @@ public class CustomerController {
         } catch (IllegalArgumentException iae) {
             throw new AuthenticationFailedException("ATH-003",
                     "Incorrect format of decoded customer name and password");
+        } catch (ArrayIndexOutOfBoundsException aio) {
+            throw new AuthenticationFailedException("ATH-003",
+                    "Incorrect format of decoded customer name and password");
         }
 
 
