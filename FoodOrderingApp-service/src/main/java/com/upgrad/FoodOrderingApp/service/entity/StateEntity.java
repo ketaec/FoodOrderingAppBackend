@@ -53,6 +53,8 @@ public class StateEntity implements Serializable {
         this.stateUuid = stateUuid;
     }
 
+    public String getUuid() { return stateUuid; } // added for passing test cases
+
     public String getStateName() {
         return stateName;
     }
