@@ -23,4 +23,12 @@ public class OrderService {
         }
         return coupon;
     }
+
+    public CouponEntity getCouponByCouponId(final String couponId) throws CouponNotFoundException {
+        CouponEntity coupon = couponDao.getCouponByCouponId(couponId);
+        if (coupon == null) {
+            throw new CouponNotFoundException("CPF-001", "No coupon by this name");
+        }
+        return coupon;
+    }
 }
