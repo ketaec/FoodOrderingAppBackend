@@ -21,4 +21,8 @@ public class PaymentService {
         }
         return payment;
     }
+
+    public List<PaymentEntity> getAllPaymentMethods() {
+        return paymentDao.getAllPaymentMethods();
+    }
 }
