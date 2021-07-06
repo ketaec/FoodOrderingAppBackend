@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class OrderService {
 
@@ -82,5 +84,10 @@ public class OrderService {
     public OrderItemEntity saveOrderItem(OrderItemEntity orderItemEntity) {
         orderItemDao.saveOrderItem(orderItemEntity);
         return orderItemEntity;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<OrderEntity> getOrdersByCustomers(final String customerUuid) {
+        return orderDao.getOrdersByCustomer(customerUuid);
     }
 }

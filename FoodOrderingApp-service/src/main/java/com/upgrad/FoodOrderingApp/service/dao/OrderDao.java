@@ -27,4 +27,13 @@ public class OrderDao {
         entityManager.persist(orderEntity);
         return orderEntity;
     }
+
+    public List<OrderEntity> getOrdersByCustomer(final String  uuid) {
+        try {
+            List<OrderEntity> orderEntities = entityManager.createNamedQuery("getAllOrdersOfCustomerByUuid",OrderEntity.class).setParameter("customerUuid",uuid).getResultList();
+            return orderEntities;
+        }catch (NoResultException nre){
+            return null;
+        }
+    }
 }
