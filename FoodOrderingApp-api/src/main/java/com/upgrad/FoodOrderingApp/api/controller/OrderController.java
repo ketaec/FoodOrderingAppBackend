@@ -10,8 +10,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @CrossOrigin
 @RestController
@@ -107,6 +113,83 @@ public class OrderController {
         saveOrderResponse.setId(savedOrder.getUuid());
         saveOrderResponse.status("ORDER SUCCESSFULLY PLACED");
         return new ResponseEntity<>(saveOrderResponse, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+            path = "/order",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<CustomerOrderResponse> getPreviousOrders(
+            @RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException {
+        String accessToken = authorization.split("Bearer ")[1];
+
+        final CustomerEntity customer = customerService.getCustomer(accessToken);
+        final List<OrderList> orderList = orderService.getOrdersByCustomers(customer.getUuid())
+                .stream()
+                .sorted(Comparator.comparing(OrderEntity::getDate)) //Reorder based on date of order creation
+                .flatMap((Function<OrderEntity, Stream<OrderList>>) ordersEntity -> Stream.of(prepareOrderListObject(ordersEntity)))
+                .collect(Collectors.toList());
+
+
+        //Return the response payload
+        CustomerOrderResponse customerOrderResponse = new CustomerOrderResponse();
+        customerOrderResponse.orders(orderList);
+        return new ResponseEntity<>(customerOrderResponse, HttpStatus.OK);
+    }
+
+    private OrderList prepareOrderListObject(final OrderEntity orderEntity) {
+        final OrderList orderList = new OrderList();
+        orderList.id(UUID.fromString(orderEntity.getUuid()));
+        orderList.bill( BigDecimal.valueOf(orderEntity.getBill()));
+        orderList.discount( BigDecimal.valueOf(orderEntity.getDiscount()));
+        orderList.date(orderEntity.getDate().toString());
+
+        orderList.coupon(prepareOrderListCoupon(orderEntity));
+        orderList.customer(prepareOrderListCustomer(orderEntity.getCustomer()));
+        orderList.address(prepareOrderListAddress(orderEntity.getAddress()));
+
+        return orderList;
+    }
+
+
+    private OrderListAddress prepareOrderListAddress(final AddressEntity address) {
+        final OrderListAddress orderListAddress = new OrderListAddress();
+        orderListAddress.city(address.getCity());
+        orderListAddress.flatBuildingName(address.getFlatBuilNo());
+        orderListAddress.id(UUID.fromString(address.getUuid()));
+        orderListAddress.locality(address.getLocality());
+        orderListAddress.pincode(address.getPincode());
+        orderListAddress.setState(prepareOrderListAddressState(address.getState()));
+        return orderListAddress;
+    }
+
+
+    private OrderListAddressState prepareOrderListAddressState(final StateEntity state) {
+        OrderListAddressState orderListAddressState = new OrderListAddressState();
+        orderListAddressState.setStateName(state.getStateName());
+        orderListAddressState.setId(UUID.fromString(state.getUuid()));
+        return orderListAddressState;
+    }
+
+
+    private OrderListCustomer prepareOrderListCustomer(final CustomerEntity customer) {
+        final OrderListCustomer orderListCustomer = new OrderListCustomer();
+        orderListCustomer.setId(UUID.fromString(customer.getUuid()));
+        orderListCustomer.setFirstName(customer.getFirstName());
+        orderListCustomer.setLastName(customer.getLastName());
+        orderListCustomer.setContactNumber(customer.getContactNumber());
+        orderListCustomer.setEmailAddress(customer.getEmail());
+        return orderListCustomer;
+    }
+
+
+    private OrderListCoupon prepareOrderListCoupon(final OrderEntity orderEntity) {
+        final CouponEntity couponEntity = orderEntity.getCoupon();
+        OrderListCoupon orderListCoupon = new OrderListCoupon();
+        orderListCoupon.setCouponName(couponEntity.getCoupon_name());
+        orderListCoupon.setId(UUID.fromString(couponEntity.getUuid()));
+        orderListCoupon.setPercent(couponEntity.getPercent());
+        return orderListCoupon;
     }
 
 }
