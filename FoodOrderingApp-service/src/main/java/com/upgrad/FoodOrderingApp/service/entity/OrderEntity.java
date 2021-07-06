@@ -60,7 +60,7 @@ public class OrderEntity implements Serializable {
 
     }
 
-    public OrderEntity(@Size(max = 200) String uuid, double bill, double discount, Date date, CouponEntity coupon, RestaurantEntity restaurant, PaymentEntity payment, CustomerEntity customer, AddressEntity address) {
+    public OrderEntity(@Size(max = 200) String uuid, double bill, CouponEntity coupon, double discount, Date date,  PaymentEntity payment, CustomerEntity customer, AddressEntity address, RestaurantEntity restaurant) {
         this.uuid = uuid;
         this.bill = bill;
         this.discount = discount;
