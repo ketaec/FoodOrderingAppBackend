@@ -22,4 +22,9 @@ public class OrderDao {
             return null;
         }
     }
+
+    public OrderEntity saveOrder(OrderEntity orderEntity){
+        entityManager.persist(orderEntity);
+        return orderEntity;
+    }
 }
