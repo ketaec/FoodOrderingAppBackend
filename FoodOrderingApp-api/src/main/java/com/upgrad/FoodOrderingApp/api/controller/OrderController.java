@@ -41,6 +41,7 @@ public class OrderController {
     @Autowired
     private ItemService itemService;
 
+    // get coupon by coupon name
     @RequestMapping(method = RequestMethod.GET,
             path = "/order/coupon/{coupon_name}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -61,6 +62,7 @@ public class OrderController {
         return new ResponseEntity<OrderListCoupon>(orderListCoupon, HttpStatus.OK);
     }
 
+    // save order deatils endpoint
     @RequestMapping(method = RequestMethod.POST,
             path = "/order",
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
@@ -115,6 +117,8 @@ public class OrderController {
         return new ResponseEntity<>(saveOrderResponse, HttpStatus.CREATED);
     }
 
+
+    // get order details endpoint
     @RequestMapping(method = RequestMethod.GET,
             path = "/order",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

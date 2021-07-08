@@ -9,10 +9,7 @@ import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
-import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
-import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
-import com.upgrad.FoodOrderingApp.service.exception.InvalidRatingException;
-import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,6 +38,10 @@ public class RestaurantController {
     @Autowired
     private ItemService itemService;
 
+    /**
+     * Get restaurant list endpoint
+     * @return ResponseEntity RestaurantListResponse
+     */
     @RequestMapping(
             method = RequestMethod.GET,
             path = "/restaurant",
@@ -88,6 +89,7 @@ public class RestaurantController {
                         .stateName(restaurantEntity.getAddress().getState().getStateName()));
     }
 
+    // get restaurant list by restaurant name
     @RequestMapping(method = RequestMethod.GET,
             path = "/restaurant/name/{restaurant_name}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -102,6 +104,7 @@ public class RestaurantController {
         return new ResponseEntity<RestaurantListResponse>(restaurantListResponse, HttpStatus.OK);
     }
 
+    // get restaurant list by category
     @RequestMapping(method = RequestMethod.GET,
             path = "/restaurant/category/{category_id}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -116,6 +119,7 @@ public class RestaurantController {
         return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
     }
 
+    // get restaurant details
     @RequestMapping(method = RequestMethod.GET,
             path = "/api/restaurant/{restaurant_id}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -163,6 +167,7 @@ public class RestaurantController {
                 .averagePrice(restaurantEntity.getAvgPrice());
     }
 
+    // update restaurant details
     @RequestMapping(method = RequestMethod.PUT,
             path = "/api/restaurant/{restaurant_id}",
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,

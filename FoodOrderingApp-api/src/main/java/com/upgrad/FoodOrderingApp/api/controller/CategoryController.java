@@ -26,6 +26,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    // get all categories
     @RequestMapping(method = RequestMethod.GET,
             path="/category",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -42,6 +43,7 @@ public class CategoryController {
         return new ResponseEntity<CategoriesListResponse>(categoriesListResponse, HttpStatus.OK );
     }
 
+    // get category details
     @RequestMapping(method = RequestMethod.GET,
             path = "/category/{category_id}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

@@ -27,6 +27,7 @@ public class ItemController {
     @Autowired
     RestaurantService restaurantService;
 
+    // get items by popularity
     @RequestMapping(method = RequestMethod.GET,
             path = "/item/restaurant/{restaurant_id}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -45,7 +46,7 @@ public class ItemController {
                     .itemType(ItemList.ItemTypeEnum.fromValue(itemEntity.getType().getValue()));
             itemListResponse.add(itemList);
         }
-        return new ResponseEntity<>(itemListResponse, HttpStatus.OK);
+        return new ResponseEntity<ItemListResponse>(itemListResponse, HttpStatus.OK);
     }
 
 }
