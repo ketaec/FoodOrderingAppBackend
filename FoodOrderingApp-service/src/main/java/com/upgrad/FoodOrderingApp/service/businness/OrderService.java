@@ -31,6 +31,7 @@ public class OrderService {
     @Autowired
     private OrderItemDao orderItemDao;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public CouponEntity getCouponByCouponName(final String couponName) throws CouponNotFoundException {
         if (couponName.isEmpty()) {
             throw new CouponNotFoundException("CPF-002", "Coupon name field should not be empty");
@@ -43,6 +44,7 @@ public class OrderService {
         return coupon;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public CouponEntity getCouponByCouponId(final String couponId) throws CouponNotFoundException {
         CouponEntity coupon = couponDao.getCouponByCouponId(couponId);
         if (coupon == null) {

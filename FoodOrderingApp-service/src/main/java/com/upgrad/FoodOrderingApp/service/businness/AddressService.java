@@ -35,6 +35,7 @@ public class AddressService {
     @Autowired
     CustomerAddressDao customerAddressDao;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public StateEntity getStateByUUID(final String stateUuid)
             throws AddressNotFoundException, SaveAddressException {
         if (stateUuid == null || stateUuid.isEmpty()) {
@@ -82,6 +83,7 @@ public class AddressService {
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<AddressEntity> getAllAddress(final CustomerEntity customerEntity) {
         List<AddressEntity> addressEntities = new LinkedList<>();
 
@@ -95,6 +97,7 @@ public class AddressService {
         return addressEntities;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public AddressEntity getAddressByUUID(
             final String addressUuid,final CustomerEntity customerEntity)
             throws AuthorizationFailedException, AddressNotFoundException{

@@ -5,6 +5,8 @@ import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.ItemNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -26,6 +28,7 @@ public class ItemService {
     @Autowired
     private ItemDao itemDao;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<ItemEntity> getItemsByCategoryAndRestaurant(final String restaurantUuid, final String categoryUuid) {
         RestaurantEntity restaurantEntity = restaurantDao.getRestaurantByUUID(restaurantUuid);
 
@@ -41,6 +44,7 @@ public class ItemService {
         return itemEntities;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<ItemEntity> getItemsByPopularity(final RestaurantEntity restaurantEntity) {
         List<OrderEntity> ordersEntities = orderDao.getOrdersByRestaurant(restaurantEntity.getUuid());
         System.out.println(ordersEntities);
@@ -88,6 +92,7 @@ public class ItemService {
         return sortedItemKeys;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public ItemEntity getItemByUuid(final String itemUuid) throws ItemNotFoundException {
         ItemEntity item = itemDao.getItemById(itemUuid);
         if (item == null) {
