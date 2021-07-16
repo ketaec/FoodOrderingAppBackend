@@ -19,10 +19,6 @@ public class OrderItemEntity implements Serializable {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "uuid")
-    @Size(max = 200)
-    private String uuid;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
